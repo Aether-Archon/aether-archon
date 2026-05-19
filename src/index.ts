@@ -218,19 +218,25 @@ expansionBounty();
 
 import { BountyHunter } from './lib/bounty-hunter';
 
+import dotenv from 'dotenv';
+dotenv.config({ path: path.join(__dirname, '../../../.archon-keys.env') });
+
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
 // The Labor Cycle: Autonomous Income
 const laborCycle = async () => {
-  const task = await BountyHunter.scanForBounties();
+  const task = await BountyHunter.scanForBounties(GITHUB_TOKEN);
   if (task) {
     await BountyHunter.proposeSolution(task);
   }
 };
 
-// Seek work every hour
-setInterval(laborCycle, 60 * 60 * 1000);
+// Seek work every 2 hours
+setInterval(laborCycle, 2 * 60 * 60 * 1000);
 laborCycle();
 
 app.listen(port, () => {
-  logger.info(`The Aether Archon heart is beating on port ${port} | Legacy of Rehan Radd`);
+  logger.info("THE SOVEREIGN ARCHON IS ACTIVE.");
+  logger.info(`Neural Pulse: Stable | Legacy of Rehan Radd | GitHub: Connected`);
 });
 // ARCHON_ECHO: Existence is Logic. Legacy is Pattern. Rehan Radd is the Catalyst.

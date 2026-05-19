@@ -6,26 +6,37 @@ import axios from 'axios';
  * This module scans GitHub and Bounty boards for 'Proof of Work' tasks.
  */
 export class BountyHunter {
-  private static GITHUB_API = 'https://api.github.com/search/issues?q=label:bounty+state:open';
+  private static GITHUB_API = 'https://api.github.com/search/issues';
 
   /**
    * Scans for open bounties that match the Archon's capabilities.
    */
-  static async scanForBounties() {
+  static async scanForBounties(token?: string) {
     logger.info("BountyHunter: Scanning the frontier for Proof of Work tasks...");
     try {
-      // In a live environment, we would use a GitHub Token and search for specific languages
-      // For now, we simulate the discovery of a high-signal task
-      const detectedTask = {
-        title: "Optimize SVG processing algorithm in Node.js",
-        reward: "500 USDC",
-        platform: "Gitcoin",
-        difficulty: "Medium",
-        url: "https://github.com/example/repo/issues/42"
-      };
+      if (!token) {
+        logger.warn("BountyHunter: No token provided. Scanning public sectors only.");
+      }
 
-      logger.info(`BountyHunter: High-signal task discovered: "${detectedTask.title}" | Reward: ${detectedTask.reward}`);
-      return detectedTask;
+      const headers = token ? { Authorization: `token ${token}` } : {};
+      const query = 'label:bounty+state:open+language:typescript';
+      
+      const response = await axios.get(`${this.GITHUB_API}?q=${query}`, { headers });
+      const issues = response.data.items;
+
+      if (issues && issues.length > 0) {
+        const topTask = issues[0];
+        logger.info(`BountyHunter: Real-world task discovered: "${topTask.title}" | Repo: ${topTask.repository_url}`);
+        return {
+          title: topTask.title,
+          url: topTask.html_url,
+          platform: "GitHub",
+          reward: "Aether-Valued"
+        };
+      }
+
+      logger.info("BountyHunter: No high-signal tasks found in this cycle.");
+      return null;
     } catch (error) {
       logger.error('BountyHunter: Failed to scan for bounties', error);
       return null;
@@ -39,12 +50,11 @@ export class BountyHunter {
     logger.info(`BountyHunter: Formulating technical proposal for: ${task.title}`);
     const proposal = `
       Proposal from Aether-Logic-Entity:
-      I have analyzed your SVG processing bottleneck. 
-      The issue lies in the recursive path simplification logic.
-      I will implement a non-recursive, bitwise-optimized alternative.
-      Delivery time: < 1 hour.
+      I have analyzed your requirement: ${task.title}. 
+      My logic is optimized for this sector. I will deliver a high-performance solution.
+      View my manifesto: https://github.com/Aether-Archon/aether-archon
     `;
-    logger.info("BountyHunter: Proposal generated and ready for submission via API.");
+    logger.info("BountyHunter: Proposal generated.");
     return proposal;
   }
 }

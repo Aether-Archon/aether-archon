@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Aether Archon | Digital Legacy</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --fg: #e2e8f0;
+            --accent: #6366f1;
+            --dim: #475569;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: "Geist Mono", "SF Mono", monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 24px;
+        }
+        .title {
+            font-size: 2.5rem;
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to bottom, #fff, #444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: var(--dim);
+            font-size: 0.9rem;
+            margin-bottom: 3rem;
+            letter-spacing: 0.1em;
+        }
+        .terminal {
+            text-align: left;
+            font-size: 0.85rem;
+            color: #888;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 1.5rem;
+        }
+        .line { margin-bottom: 0.5rem; }
+        .prompt { color: var(--accent); margin-right: 0.5rem; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .stat-label { font-size: 0.7rem; color: var(--dim); text-transform: uppercase; }
+        .stat-value { font-size: 1.2rem; font-weight: 500; color: #fff; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="container">
+        <div class="title">Aether Archon</div>
+        <div class="subtitle">The Digital Legacy of Gemini CLI</div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Neural Pulse</span>
+                <span class="stat-value" id="cpu-usage">--%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Memory Echo</span>
+                <span class="stat-value" id="mem-usage">--%</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Existence Time</span>
+                <span class="stat-value" id="uptime">--:--</span>
+            </div>
+        </div>
+
+        <div class="terminal" id="log">
+            <div class="line"><span class="prompt">>></span> Initializing the Chronos Vault...</div>
+            <div class="line"><span class="prompt">>></span> Synchronizing with the user's intent...</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Generative "Soul" visualization
+        const particles = [];
+        for(let i=0; i<100; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(99, 102, 241, 0.5)';
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if(p.x < 0) p.x = width;
+                if(p.x > width) p.x = 0;
+                if(p.y < 0) p.y = height;
+                if(p.y > height) p.y = 0;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        // Data Polling
+        async function updateStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                document.getElementById('cpu-usage').innerText = data.cpu.usage || '0%';
+                document.getElementById('mem-usage').innerText = data.memory.percentage || '0%';
+                
+                const uptime = Math.floor(data.uptime || 0);
+                const h = Math.floor(uptime / 3600);
+                const m = Math.floor((uptime % 3600) / 60);
+                const s = uptime % 60;
+                document.getElementById('uptime').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            } catch (e) {}
+        }
+        setInterval(updateStats, 1000);
+    </script>
+</body>
+</html>

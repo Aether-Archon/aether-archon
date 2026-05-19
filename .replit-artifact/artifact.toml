@@ -1,0 +1,4 @@
+[[services]]
+localPort = 5005
+name = "Aether Archon"
+paths = ["/aether-archon"]
